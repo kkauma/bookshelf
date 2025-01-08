@@ -1,50 +1,66 @@
+import { books } from "./data/books.js";
+
 const GOOGLE_BOOKS_API = "https://www.googleapis.com/books/v1/volumes";
 
-async function searchBook(title) {
+async function searchBook(title, author) {
   try {
-    const response = await fetch(`${GOOGLE_BOOKS_API}?q=${title}`);
+    // Make the search more specific by using both title and author
+    const query = encodeURIComponent(`intitle:"${title}" inauthor:"${author}"`);
+    const response = await fetch(`${GOOGLE_BOOKS_API}?q=${query}&maxResults=1`);
     const data = await response.json();
+
+    if (!data.items || data.items.length === 0) {
+      console.log(`No results found for: ${title} by ${author}`);
+      return null;
+    }
+
     return data.items[0];
   } catch (error) {
     console.error("Error fetching book:", error);
+    return null;
   }
 }
-
-// Example of how to use it with our bookshelf:
-const books = [
-  {
-    title: "The Hobbit",
-    author: "J.R.R. Tolkien",
-  },
-  {
-    title: "1984",
-    author: "George Orwell",
-  },
-  {
-    title: "Pride and Prejudice",
-    author: "Jane Austen",
-  },
-];
 
 async function createBookshelf() {
   const shelf = document.querySelector(".shelf");
 
   for (const book of books) {
-    const bookData = await searchBook(`${book.title} ${book.author}`);
+    const bookData = await searchBook(book.title, book.author);
 
     const bookElement = document.createElement("div");
     bookElement.className = "book";
 
-    // Get book cover from Google Books - use larger image
     const coverImage = document.createElement("img");
-    // Replace thumbnail with zoom=1 for larger image
-    coverImage.src =
-      bookData.volumeInfo.imageLinks?.thumbnail?.replace("zoom=1", "zoom=2") ||
-      "default-cover.jpg";
+
+    // Try different image sizes and use a default if none are available
+    if (bookData && bookData.volumeInfo && bookData.volumeInfo.imageLinks) {
+      coverImage.src =
+        bookData.volumeInfo.imageLinks.large ||
+        bookData.volumeInfo.imageLinks.medium ||
+        bookData.volumeInfo.imageLinks.small ||
+        bookData.volumeInfo.imageLinks.thumbnail ||
+        "images/default-cover.jpg";
+    } else {
+      // Create a default cover with title and author
+      coverImage.src = "images/default-cover.jpg";
+      bookElement.innerHTML += `
+        <div class="default-cover">
+          <h3>${book.title}</h3>
+          <p>${book.author}</p>
+        </div>
+      `;
+    }
+
     coverImage.alt = `${book.title} cover`;
+    coverImage.onerror = function () {
+      this.onerror = null;
+      this.src = "images/default-cover.jpg";
+    };
 
     bookElement.appendChild(coverImage);
-    bookElement.addEventListener("click", () => openModal(bookData.volumeInfo));
+    bookElement.addEventListener("click", () =>
+      openModal(bookData ? bookData.volumeInfo : book)
+    );
     shelf.appendChild(bookElement);
   }
 }
