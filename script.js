@@ -1,8 +1,9 @@
 import { books } from "./data/books.js";
+import { AMAZON_AFFILIATE_ID } from "./config.js";
 
 const GOOGLE_BOOKS_API = "https://www.googleapis.com/books/v1/volumes";
 const AFFILIATE_IDS = {
-  amazon: "your-amazon-id-20", // Replace with your Amazon Associates ID
+  amazon: AMAZON_AFFILIATE_ID,
 };
 
 async function searchBook(title, author) {
