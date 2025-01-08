@@ -1,6 +1,10 @@
 import { books } from "./data/books.js";
+import { AMAZON_AFFILIATE_ID } from "./config.js";
 
 const GOOGLE_BOOKS_API = "https://www.googleapis.com/books/v1/volumes";
+const AFFILIATE_IDS = {
+  amazon: AMAZON_AFFILIATE_ID,
+};
 
 async function searchBook(title, author) {
   try {
@@ -127,31 +131,62 @@ const modal = document.getElementById("bookModal");
 makeDraggable(modal);
 
 function openModal(bookInfo) {
-  document.getElementById("bookTitle").textContent = bookInfo.title;
-  document.getElementById(
-    "bookAuthor"
-  ).textContent = `By ${bookInfo.authors?.join(", ")}`;
-  document.getElementById("bookDescription").textContent = bookInfo.description;
-  document.getElementById("bookCover").src = bookInfo.imageLinks?.thumbnail;
+  const modal = document.getElementById("bookModal");
+  const title = document.getElementById("bookTitle");
+  const author = document.getElementById("bookAuthor");
+  const description = document.getElementById("bookDescription");
+  const additionalInfo = document.getElementById("additionalInfo");
+  const bookCover = document.getElementById("bookCover");
 
-  // Format additional info
-  const additionalInfo = `
-        <p><strong>Published:</strong> ${bookInfo.publishedDate || "N/A"}</p>
-        <p><strong>Pages:</strong> ${bookInfo.pageCount || "N/A"}</p>
-        <p><strong>Rating:</strong> ${
-          bookInfo.averageRating ? `${bookInfo.averageRating}/5` : "N/A"
-        }</p>
-        <p><strong>Categories:</strong> ${
-          bookInfo.categories?.join(", ") || "N/A"
-        }</p>
-    `;
-  document.getElementById("additionalInfo").innerHTML = additionalInfo;
+  // Clear previous content
+  additionalInfo.innerHTML = "";
+
+  // Update modal content
+  title.textContent = bookInfo.title;
+  author.textContent = bookInfo.authors
+    ? `By ${bookInfo.authors.join(", ")}`
+    : "";
+  description.textContent = bookInfo.description || "No description available.";
+
+  // Update book cover image
+  if (bookInfo.imageLinks?.thumbnail) {
+    const imageUrl = bookInfo.imageLinks.thumbnail
+      .replace("http:", "https:")
+      .replace("zoom=1", "zoom=2");
+    bookCover.src = imageUrl;
+    bookCover.style.display = "block";
+  } else {
+    bookCover.style.display = "none";
+  }
+
+  // Create Amazon affiliate link
+  const amazonLink = createAmazonLink(bookInfo.title, bookInfo.authors?.[0]);
+  const buyButton = document.createElement("a");
+  buyButton.href = amazonLink;
+  buyButton.target = "_blank";
+  buyButton.rel = "noopener noreferrer sponsored";
+  buyButton.className = "buy-button amazon";
+  buyButton.innerHTML = "🛒 Buy on Amazon";
+
+  // Add book details
+  additionalInfo.innerHTML = `
+      <p><strong>Published:</strong> ${bookInfo.publishedDate || "N/A"}</p>
+      <p><strong>Pages:</strong> ${bookInfo.pageCount || "N/A"}</p>
+      ${
+        bookInfo.averageRating
+          ? `<p><strong>Rating:</strong> ${bookInfo.averageRating}/5</p>`
+          : ""
+      }
+  `;
+  additionalInfo.appendChild(buyButton);
 
   modal.style.display = "block";
+}
 
-  // Reset modal position when opening
-  const modalContent = modal.querySelector(".modal-content");
-  modalContent.style.transform = "translate(-50%, -50%)";
+// Function to create Amazon affiliate link
+function createAmazonLink(title, author) {
+  const searchQuery = encodeURIComponent(`${title} ${author || ""}`);
+  return `https://www.amazon.com/s?k=${searchQuery}&tag=${AMAZON_AFFILIATE_ID}`;
 }
 
 // Modal functionality
@@ -170,3 +205,20 @@ window.onclick = function (event) {
 document.addEventListener("DOMContentLoaded", async () => {
   await createBookshelf();
 });
+
+function createAffiliateLinks(book) {
+  const amazonQuery = encodeURIComponent(`${book.title} ${book.author}`);
+
+  return {
+    amazon: `https://www.amazon.com/s?k=${amazonQuery}&tag=${AFFILIATE_IDS.amazon}`,
+  };
+}
+
+// Add click tracking
+function trackAffiliateClick(store, bookTitle) {
+  // If you're using Google Analytics
+  gtag("event", "affiliate_click", {
+    store: store,
+    book: bookTitle,
+  });
+}
