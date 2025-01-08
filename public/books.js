@@ -8,8 +8,8 @@ export const books = [
     author: "Eric Ries",
   },
   {
-    title: "Start with Why",
-    author: "Simon Sinek",
+    title: "Crypto Confidential",
+    author: "Nathaniel Eliason",
   },
   {
     title: "Good to Great",
