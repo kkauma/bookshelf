@@ -185,7 +185,6 @@ function openModal(bookInfo) {
 
 // Function to create Amazon affiliate link
 function createAmazonLink(title, author) {
-  const AMAZON_AFFILIATE_ID = "your-amazon-id-20"; // Replace with your actual Amazon Associates ID
   const searchQuery = encodeURIComponent(`${title} ${author || ""}`);
   return `https://www.amazon.com/s?k=${searchQuery}&tag=${AMAZON_AFFILIATE_ID}`;
 }
