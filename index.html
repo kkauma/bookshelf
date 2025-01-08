@@ -44,6 +44,11 @@
       </p>
     </div>
 
-    <script src="script.js" type="module"></script>
+    <script>
+      window.env = {
+        AMAZON_AFFILIATE_ID: "<%=process.env.AMAZON_AFFILIATE_ID%>",
+      };
+    </script>
+    <script type="module" src="script.js"></script>
   </body>
 </html>

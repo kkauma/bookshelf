@@ -1,5 +1,5 @@
 import { books } from "./data/books.js";
-import { AMAZON_AFFILIATE_ID } from "./config.js";
+import { AMAZON_AFFILIATE_ID, initConfig } from "./config.js";
 
 const GOOGLE_BOOKS_API = "https://www.googleapis.com/books/v1/volumes";
 const AFFILIATE_IDS = {
@@ -203,6 +203,7 @@ window.onclick = function (event) {
 };
 
 document.addEventListener("DOMContentLoaded", async () => {
+  await init();
   await createBookshelf();
 });
 
@@ -221,4 +222,10 @@ function trackAffiliateClick(store, bookTitle) {
     store: store,
     book: bookTitle,
   });
+}
+
+async function init() {
+  await initConfig();
+  // Your existing code here
+  // Now you can use AMAZON_AFFILIATE_ID safely
 }
