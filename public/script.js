@@ -1,9 +1,8 @@
-import { AMAZON_AFFILIATE_ID } from "./config.js";
 import { books } from "./books.js";
 
 const GOOGLE_BOOKS_API = "https://www.googleapis.com/books/v1/volumes";
-const AFFILIATE_IDS = {
-  amazon: AMAZON_AFFILIATE_ID,
+let AFFILIATE_IDS = {
+  amazon: "", // We'll populate this after fetching config
 };
 
 async function getConfig() {
@@ -197,7 +196,7 @@ function openModal(bookInfo) {
 // Function to create Amazon affiliate link
 function createAmazonLink(title, author) {
   const searchQuery = encodeURIComponent(`${title} ${author || ""}`);
-  return `https://www.amazon.com/s?k=${searchQuery}&tag=${AMAZON_AFFILIATE_ID}`;
+  return `https://www.amazon.com/s?k=${searchQuery}&tag=${AFFILIATE_IDS.amazon}`;
 }
 
 // Modal functionality
@@ -241,4 +240,10 @@ async function init() {
   // ... rest of your initialization code
 }
 
-init();
+// Initialize the config when the script loads
+async function initializeConfig() {
+  AFFILIATE_IDS.amazon = await getConfig();
+}
+
+// Call this when the script loads
+initializeConfig();

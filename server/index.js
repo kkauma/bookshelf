@@ -33,15 +33,14 @@ app.use("/data", express.static(path.join(__dirname, "../data")));
 
 // API endpoint to get the affiliate ID
 app.get("/api/config", (req, res) => {
-  res.json({
-    affiliateId: AMAZON_AFFILIATE_ID,
-  });
-});
-
-// Add these specific routes before your static file middleware
-app.get("/config.js", (req, res) => {
-  res.set("Content-Type", "application/javascript; charset=UTF-8");
-  res.send(`export const AMAZON_AFFILIATE_ID = '${AMAZON_AFFILIATE_ID}';`);
+  try {
+    res.json({
+      affiliateId: process.env.AMAZON_AFFILIATE_ID || "",
+    });
+  } catch (error) {
+    console.error("Error serving config:", error);
+    res.status(500).json({ error: "Failed to load config" });
+  }
 });
 
 // Handle all other routes by serving index.html
