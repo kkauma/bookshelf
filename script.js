@@ -1,53 +1,77 @@
-// Sample book data
+const GOOGLE_BOOKS_API = "https://www.googleapis.com/books/v1/volumes";
+
+async function searchBook(title) {
+  try {
+    const response = await fetch(`${GOOGLE_BOOKS_API}?q=${title}`);
+    const data = await response.json();
+    return data.items[0];
+  } catch (error) {
+    console.error("Error fetching book:", error);
+  }
+}
+
+// Example of how to use it with our bookshelf:
 const books = [
   {
-    id: 1,
-    title: "The Great Gatsby",
-    author: "F. Scott Fitzgerald",
-    color: "#264653",
-    cover: "path/to/cover1.jpg",
-    description: "A story of decadence and excess...",
+    title: "The Hobbit",
+    author: "J.R.R. Tolkien",
   },
   {
-    id: 2,
     title: "1984",
     author: "George Orwell",
-    color: "#2a9d8f",
-    cover: "path/to/cover2.jpg",
-    description: "A dystopian social science fiction...",
   },
-  // Add more books as needed
+  {
+    title: "Pride and Prejudice",
+    author: "Jane Austen",
+  },
 ];
 
-// Create books on the shelf
-function createBookshelf() {
+async function createBookshelf() {
   const shelf = document.querySelector(".shelf");
 
-  books.forEach((book) => {
+  for (const book of books) {
+    const bookData = await searchBook(`${book.title} ${book.author}`);
+
     const bookElement = document.createElement("div");
     bookElement.className = "book";
-    bookElement.style.backgroundColor = book.color;
-    bookElement.setAttribute("data-id", book.id);
 
-    // Add title on the spine
-    bookElement.innerHTML = `<div class="spine-text">${book.title}</div>`;
+    // Get book cover from Google Books - use larger image
+    const coverImage = document.createElement("img");
+    // Replace thumbnail with zoom=1 for larger image
+    coverImage.src =
+      bookData.volumeInfo.imageLinks?.thumbnail?.replace("zoom=1", "zoom=2") ||
+      "default-cover.jpg";
+    coverImage.alt = `${book.title} cover`;
 
-    bookElement.addEventListener("click", () => openModal(book));
+    bookElement.appendChild(coverImage);
+    bookElement.addEventListener("click", () => openModal(bookData.volumeInfo));
     shelf.appendChild(bookElement);
-  });
+  }
+}
+
+function openModal(bookInfo) {
+  document.getElementById("bookTitle").textContent = bookInfo.title;
+  document.getElementById(
+    "bookAuthor"
+  ).textContent = `By ${bookInfo.authors?.join(", ")}`;
+  document.getElementById("bookDescription").textContent = bookInfo.description;
+  document.getElementById("bookCover").src = bookInfo.imageLinks?.thumbnail;
+
+  // Add additional info
+  const additionalInfo = `
+        <p>Published: ${bookInfo.publishedDate}</p>
+        <p>Pages: ${bookInfo.pageCount}</p>
+        <p>Rating: ${bookInfo.averageRating || "N/A"}/5</p>
+        <p>Categories: ${bookInfo.categories?.join(", ") || "N/A"}</p>
+    `;
+  document.getElementById("additionalInfo").innerHTML = additionalInfo;
+
+  modal.style.display = "block";
 }
 
 // Modal functionality
 const modal = document.getElementById("bookModal");
 const closeBtn = document.querySelector(".close");
-
-function openModal(book) {
-  document.getElementById("bookTitle").textContent = book.title;
-  document.getElementById("bookAuthor").textContent = `By ${book.author}`;
-  document.getElementById("bookDescription").textContent = book.description;
-  document.getElementById("bookCover").src = book.cover;
-  modal.style.display = "block";
-}
 
 closeBtn.onclick = function () {
   modal.style.display = "none";

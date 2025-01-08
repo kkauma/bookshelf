@@ -7,9 +7,12 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="bookshelf">
-      <div class="shelf">
-        <!-- Books will be dynamically added here -->
+    <div class="container">
+      <h1 class="title">Bookshelf</h1>
+      <div class="bookshelf">
+        <div class="shelf">
+          <!-- Books will be dynamically added here -->
+        </div>
       </div>
     </div>
 
@@ -17,9 +20,10 @@
     <div id="bookModal" class="modal">
       <div class="modal-content">
         <span class="close">&times;</span>
-        <h2 id="bookTitle"></h2>
         <img id="bookCover" src="" alt="Book cover" />
+        <h2 id="bookTitle"></h2>
         <p id="bookAuthor"></p>
+        <div id="additionalInfo"></div>
         <p id="bookDescription"></p>
       </div>
     </div>
