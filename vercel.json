@@ -6,7 +6,7 @@
       "use": "@vercel/node"
     },
     {
-      "src": "*.html",
+      "src": "**/*",
       "use": "@vercel/static"
     }
   ],
@@ -14,6 +14,13 @@
     {
       "src": "/api/(.*)",
       "dest": "server/index.js"
+    },
+    {
+      "src": "^/data/.*\\.js$",
+      "headers": {
+        "Content-Type": "application/javascript"
+      },
+      "dest": "/$0"
     },
     {
       "src": "/(.*)",

@@ -1,10 +1,21 @@
-import { books } from "./data/books.js";
-import { AMAZON_AFFILIATE_ID, initConfig } from "./config.js";
+import { AMAZON_AFFILIATE_ID } from "./config.js";
+import { books } from "../data/books.js";
 
 const GOOGLE_BOOKS_API = "https://www.googleapis.com/books/v1/volumes";
 const AFFILIATE_IDS = {
   amazon: AMAZON_AFFILIATE_ID,
 };
+
+async function getConfig() {
+  try {
+    const response = await fetch("/api/config");
+    const data = await response.json();
+    return data.affiliateId;
+  } catch (error) {
+    console.error("Error loading config:", error);
+    return "";
+  }
+}
 
 async function searchBook(title, author) {
   try {
@@ -225,7 +236,9 @@ function trackAffiliateClick(store, bookTitle) {
 }
 
 async function init() {
-  await initConfig();
-  // Your existing code here
-  // Now you can use AMAZON_AFFILIATE_ID safely
+  const affiliateId = await getConfig();
+  // Use affiliateId in your code
+  // ... rest of your initialization code
 }
+
+init();
