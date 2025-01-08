@@ -1,5 +1,5 @@
 import { AMAZON_AFFILIATE_ID } from "./config.js";
-import { books } from "../data/books.js";
+import { books } from "./books.js";
 
 const GOOGLE_BOOKS_API = "https://www.googleapis.com/books/v1/volumes";
 const AFFILIATE_IDS = {
