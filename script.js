@@ -14,6 +14,17 @@ async function searchBook(title, author) {
       return null;
     }
 
+    // Modify the image URL to get higher resolution
+    if (data.items[0].volumeInfo.imageLinks) {
+      // Replace zoom=1 with zoom=3 for higher resolution
+      const imageLinks = data.items[0].volumeInfo.imageLinks;
+      for (let key in imageLinks) {
+        imageLinks[key] = imageLinks[key]
+          .replace("zoom=1", "zoom=3")
+          .replace("http://", "https://");
+      }
+    }
+
     return data.items[0];
   } catch (error) {
     console.error("Error fetching book:", error);

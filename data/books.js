@@ -20,12 +20,12 @@ export const books = [
     author: "Napoleon Hill",
   },
   {
-    title: "The 4-Hour Work Week",
-    author: "Timothy Ferriss",
+    title: "Feel-Good Productivity",
+    author: "Ali Abdaal",
   },
   {
-    title: "Rich Dad Poor Dad",
-    author: "Robert Kiyosaki",
+    title: "Dotcom Secrets",
+    author: "Russell Brunson",
   },
   {
     title: "The $100 Startup",
@@ -40,8 +40,8 @@ export const books = [
     author: "Michael E. Gerber",
   },
   {
-    title: "Atomic Habits",
-    author: "James Clear",
+    title: "Million Dollar Weekend",
+    author: "Noah Kagan",
   },
   {
     title: "Built to Last",
