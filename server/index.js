@@ -38,6 +38,12 @@ app.get("/api/config", (req, res) => {
   });
 });
 
+// Add these specific routes before your static file middleware
+app.get("/config.js", (req, res) => {
+  res.set("Content-Type", "application/javascript; charset=UTF-8");
+  res.send(`export const AMAZON_AFFILIATE_ID = '${AMAZON_AFFILIATE_ID}';`);
+});
+
 // Handle all other routes by serving index.html
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../public/index.html"));
