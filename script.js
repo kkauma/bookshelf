@@ -22,48 +22,98 @@ async function searchBook(title, author) {
 }
 
 async function createBookshelf() {
-  const shelf = document.querySelector(".shelf");
+  const bookshelf = document.querySelector(".bookshelf");
+  const booksPerShelf = 5;
 
-  for (const book of books) {
-    const bookData = await searchBook(book.title, book.author);
+  // Calculate number of shelves needed
+  const numberOfShelves = Math.ceil(books.length / booksPerShelf);
 
-    const bookElement = document.createElement("div");
-    bookElement.className = "book";
+  // Create only the shelves we need
+  for (let i = 0; i < books.length; i += booksPerShelf) {
+    const shelfBooks = books.slice(i, i + booksPerShelf);
 
-    const coverImage = document.createElement("img");
+    // Create shelf
+    const shelf = document.createElement("div");
+    shelf.className = "shelf";
 
-    // Try different image sizes and use a default if none are available
-    if (bookData && bookData.volumeInfo && bookData.volumeInfo.imageLinks) {
-      coverImage.src =
-        bookData.volumeInfo.imageLinks.large ||
-        bookData.volumeInfo.imageLinks.medium ||
-        bookData.volumeInfo.imageLinks.small ||
-        bookData.volumeInfo.imageLinks.thumbnail ||
-        "images/default-cover.jpg";
-    } else {
-      // Create a default cover with title and author
-      coverImage.src = "images/default-cover.jpg";
-      bookElement.innerHTML += `
-        <div class="default-cover">
-          <h3>${book.title}</h3>
-          <p>${book.author}</p>
-        </div>
-      `;
+    // Add books to this shelf
+    for (const book of shelfBooks) {
+      const bookData = await searchBook(book.title, book.author);
+      const bookElement = document.createElement("div");
+      bookElement.className = "book";
+
+      const coverImage = document.createElement("img");
+      if (bookData && bookData.volumeInfo && bookData.volumeInfo.imageLinks) {
+        coverImage.src = bookData.volumeInfo.imageLinks.thumbnail;
+      } else {
+        coverImage.src = "images/default-cover.jpg";
+      }
+
+      coverImage.alt = `${book.title} cover`;
+      bookElement.appendChild(coverImage);
+      bookElement.addEventListener("click", () =>
+        openModal(bookData ? bookData.volumeInfo : book)
+      );
+      shelf.appendChild(bookElement);
     }
 
-    coverImage.alt = `${book.title} cover`;
-    coverImage.onerror = function () {
-      this.onerror = null;
-      this.src = "images/default-cover.jpg";
-    };
-
-    bookElement.appendChild(coverImage);
-    bookElement.addEventListener("click", () =>
-      openModal(bookData ? bookData.volumeInfo : book)
-    );
-    shelf.appendChild(bookElement);
+    bookshelf.appendChild(shelf);
   }
 }
+
+function makeDraggable(modal) {
+  const modalContent = modal.querySelector(".modal-content");
+  const modalHeader = modal.querySelector(".modal-header");
+
+  let isDragging = false;
+  let currentX;
+  let currentY;
+  let initialX;
+  let initialY;
+  let xOffset = 0;
+  let yOffset = 0;
+
+  modalHeader.addEventListener("mousedown", dragStart);
+  document.addEventListener("mousemove", drag);
+  document.addEventListener("mouseup", dragEnd);
+
+  function dragStart(e) {
+    initialX = e.clientX - xOffset;
+    initialY = e.clientY - yOffset;
+
+    if (e.target === modalHeader || e.target.parentNode === modalHeader) {
+      isDragging = true;
+    }
+  }
+
+  function drag(e) {
+    if (isDragging) {
+      e.preventDefault();
+
+      currentX = e.clientX - initialX;
+      currentY = e.clientY - initialY;
+
+      xOffset = currentX;
+      yOffset = currentY;
+
+      setTranslate(currentX, currentY, modalContent);
+    }
+  }
+
+  function dragEnd(e) {
+    initialX = currentX;
+    initialY = currentY;
+    isDragging = false;
+  }
+
+  function setTranslate(xPos, yPos, el) {
+    el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+  }
+}
+
+// Initialize draggable modal
+const modal = document.getElementById("bookModal");
+makeDraggable(modal);
 
 function openModal(bookInfo) {
   document.getElementById("bookTitle").textContent = bookInfo.title;
@@ -73,20 +123,27 @@ function openModal(bookInfo) {
   document.getElementById("bookDescription").textContent = bookInfo.description;
   document.getElementById("bookCover").src = bookInfo.imageLinks?.thumbnail;
 
-  // Add additional info
+  // Format additional info
   const additionalInfo = `
-        <p>Published: ${bookInfo.publishedDate}</p>
-        <p>Pages: ${bookInfo.pageCount}</p>
-        <p>Rating: ${bookInfo.averageRating || "N/A"}/5</p>
-        <p>Categories: ${bookInfo.categories?.join(", ") || "N/A"}</p>
+        <p><strong>Published:</strong> ${bookInfo.publishedDate || "N/A"}</p>
+        <p><strong>Pages:</strong> ${bookInfo.pageCount || "N/A"}</p>
+        <p><strong>Rating:</strong> ${
+          bookInfo.averageRating ? `${bookInfo.averageRating}/5` : "N/A"
+        }</p>
+        <p><strong>Categories:</strong> ${
+          bookInfo.categories?.join(", ") || "N/A"
+        }</p>
     `;
   document.getElementById("additionalInfo").innerHTML = additionalInfo;
 
   modal.style.display = "block";
+
+  // Reset modal position when opening
+  const modalContent = modal.querySelector(".modal-content");
+  modalContent.style.transform = "translate(-50%, -50%)";
 }
 
 // Modal functionality
-const modal = document.getElementById("bookModal");
 const closeBtn = document.querySelector(".close");
 
 closeBtn.onclick = function () {
@@ -99,5 +156,6 @@ window.onclick = function (event) {
   }
 };
 
-// Initialize the bookshelf
-createBookshelf();
+document.addEventListener("DOMContentLoaded", async () => {
+  await createBookshelf();
+});

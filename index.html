@@ -10,21 +10,25 @@
     <div class="container">
       <h1 class="title">Bookshelf</h1>
       <div class="bookshelf">
-        <div class="shelf">
-          <!-- Books will be dynamically added here -->
-        </div>
+        <!-- Remove any pre-existing shelf divs - they should be created by JavaScript -->
       </div>
     </div>
 
     <!-- Modal -->
     <div id="bookModal" class="modal">
       <div class="modal-content">
-        <span class="close">&times;</span>
-        <img id="bookCover" src="" alt="Book cover" />
-        <h2 id="bookTitle"></h2>
-        <p id="bookAuthor"></p>
-        <div id="additionalInfo"></div>
-        <p id="bookDescription"></p>
+        <div class="modal-header">
+          <h2 id="bookTitle"></h2>
+          <span class="close">&times;</span>
+        </div>
+        <div class="book-details">
+          <img id="bookCover" src="" alt="Book cover" />
+          <div class="book-info">
+            <p id="bookAuthor"></p>
+            <p id="bookDescription"></p>
+            <div id="additionalInfo"></div>
+          </div>
+        </div>
       </div>
     </div>
 

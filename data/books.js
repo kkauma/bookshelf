@@ -1,42 +1,62 @@
 export const books = [
   {
-    title: "The Hobbit",
-    author: "J.R.R. Tolkien",
+    title: "Zero to One",
+    author: "Peter Thiel",
   },
   {
-    title: "1984",
-    author: "George Orwell",
+    title: "The Lean Startup",
+    author: "Eric Ries",
   },
   {
-    title: "Pride and Prejudice",
-    author: "Jane Austen",
+    title: "Start with Why",
+    author: "Simon Sinek",
   },
   {
-    title: "To Kill a Mockingbird",
-    author: "Harper Lee",
+    title: "Good to Great",
+    author: "Jim Collins",
   },
   {
-    title: "The Great Gatsby",
-    author: "F. Scott Fitzgerald",
+    title: "Think and Grow Rich",
+    author: "Napoleon Hill",
   },
   {
-    title: "The Catcher in the Rye",
-    author: "J.D. Salinger",
+    title: "The 4-Hour Work Week",
+    author: "Timothy Ferriss",
   },
   {
-    title: "Lord of the Flies",
-    author: "William Golding",
+    title: "Rich Dad Poor Dad",
+    author: "Robert Kiyosaki",
   },
   {
-    title: "The Alchemist",
-    author: "Paulo Coelho",
+    title: "The $100 Startup",
+    author: "Chris Guillebeau",
   },
   {
-    title: "Brave New World",
-    author: "Aldous Huxley",
+    title: "Rework",
+    author: "Jason Fried",
   },
   {
-    title: "The Picture of Dorian Gray",
-    author: "Oscar Wilde",
+    title: "The E-Myth Revisited",
+    author: "Michael E. Gerber",
+  },
+  {
+    title: "Atomic Habits",
+    author: "James Clear",
+  },
+  {
+    title: "Built to Last",
+    author: "Jim Collins",
+  },
+  {
+    title: "The Hard Thing About Hard Things",
+    author: "Ben Horowitz",
+  },
+  {
+    title: "Shoe Dog",
+    author: "Phil Knight",
+  },
+  {
+    title: "Principles",
+    author: "Ray Dalio",
   },
 ];
