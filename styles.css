@@ -1,0 +1,56 @@
+.bookshelf {
+  padding: 20px;
+  background: #f5f5f5;
+}
+
+.shelf {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 20px;
+  background: #8b4513;
+  border-bottom: 15px solid #5c2c0c;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.book {
+  height: 200px;
+  width: 40px;
+  background: #ff0000;
+  cursor: pointer;
+  transition: transform 0.3s;
+  position: relative;
+}
+
+.book:hover {
+  transform: translateY(-10px);
+}
+
+/* Modal styles */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.modal-content {
+  background: white;
+  margin: 15% auto;
+  padding: 20px;
+  width: 70%;
+  max-width: 500px;
+  border-radius: 5px;
+  position: relative;
+}
+
+.close {
+  position: absolute;
+  right: 20px;
+  top: 10px;
+  font-size: 28px;
+  cursor: pointer;
+}
