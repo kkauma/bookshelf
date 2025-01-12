@@ -251,3 +251,19 @@
   padding: 20px;
   margin-top: 40px;
 }
+
+.amazon-button {
+  display: inline-block;
+  background-color: #f4d03f;
+  color: #000;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 5px;
+  margin-top: 20px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.amazon-button:hover {
+  background-color: #f1c40f;
+}

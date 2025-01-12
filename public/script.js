@@ -46,43 +46,69 @@ async function searchBook(title, author) {
   }
 }
 
+function createBookElement(book) {
+  const bookElement = document.createElement("div");
+  bookElement.className = "book";
+
+  const coverImage = document.createElement("img");
+  coverImage.src = book.coverUrl;
+  coverImage.alt = `${book.title} cover`;
+  coverImage.dataset.title = book.title;
+  coverImage.dataset.author = book.author;
+
+  // Add click event listener
+  bookElement.addEventListener("click", () => showBookModal(book));
+
+  bookElement.appendChild(coverImage);
+  return bookElement;
+}
+
 async function createBookshelf() {
   const bookshelf = document.querySelector(".bookshelf");
   const booksPerShelf = 5;
 
-  // Calculate number of shelves needed
-  const numberOfShelves = Math.ceil(books.length / booksPerShelf);
+  // Clear existing books first
+  bookshelf.innerHTML = "";
 
-  // Create only the shelves we need
+  // Create shelves and add books
   for (let i = 0; i < books.length; i += booksPerShelf) {
-    const shelfBooks = books.slice(i, i + booksPerShelf);
-
-    // Create shelf
     const shelf = document.createElement("div");
     shelf.className = "shelf";
 
-    // Add books to this shelf
+    const shelfBooks = books.slice(i, i + booksPerShelf);
     for (const book of shelfBooks) {
-      const bookData = await searchBook(book.title, book.author);
-      const bookElement = document.createElement("div");
-      bookElement.className = "book";
-
-      const coverImage = document.createElement("img");
-      if (bookData && bookData.volumeInfo && bookData.volumeInfo.imageLinks) {
-        coverImage.src = bookData.volumeInfo.imageLinks.thumbnail;
-      } else {
-        coverImage.src = "images/default-cover.jpg";
-      }
-
-      coverImage.alt = `${book.title} cover`;
-      bookElement.appendChild(coverImage);
-      bookElement.addEventListener("click", () =>
-        openModal(bookData ? bookData.volumeInfo : book)
-      );
+      const bookElement = createBookElement(book);
       shelf.appendChild(bookElement);
     }
-
     bookshelf.appendChild(shelf);
+  }
+
+  // Fetch additional book data in the background
+  fetchBookDetails();
+}
+
+async function fetchBookDetails() {
+  const bookPromises = books.map(async (book) => {
+    const bookData = await searchBook(book.title, book.author);
+    if (bookData) {
+      // Store the additional data for use in modal/details
+      book.details = bookData;
+      // Trigger any UI updates needed for additional data
+      updateBookUI(book);
+    }
+    return bookData;
+  });
+
+  // Wait for all book data to be fetched
+  await Promise.all(bookPromises);
+}
+
+function updateBookUI(book) {
+  // Update any UI elements that depend on the additional book data
+  // For example, updating hover states, adding badges, etc.
+  const bookElement = document.querySelector(`img[data-title="${book.title}"]`);
+  if (bookElement && book.details) {
+    bookElement.parentElement.dataset.hasDetails = "true";
   }
 }
 
@@ -140,55 +166,85 @@ function makeDraggable(modal) {
 const modal = document.getElementById("bookModal");
 makeDraggable(modal);
 
-function openModal(bookInfo) {
+function formatRating(volumeInfo) {
+  if (!volumeInfo) return "?/5";
+
+  const rating = volumeInfo.averageRating;
+  const ratingsCount = volumeInfo.ratingsCount;
+
+  if (!rating) return "?/5";
+
+  // Return rating with optional ratings count
+  return ratingsCount ? `${rating}/5 (${ratingsCount} ratings)` : `${rating}/5`;
+}
+
+function showBookModal(book) {
   const modal = document.getElementById("bookModal");
   const title = document.getElementById("bookTitle");
   const author = document.getElementById("bookAuthor");
+  const cover = document.getElementById("bookCover");
   const description = document.getElementById("bookDescription");
   const additionalInfo = document.getElementById("additionalInfo");
-  const bookCover = document.getElementById("bookCover");
 
-  // Clear previous content
-  additionalInfo.innerHTML = "";
+  // Immediately show the basic info we have
+  title.textContent = book.title;
+  author.textContent = book.author;
+  cover.src = book.coverUrl;
 
-  // Update modal content
-  title.textContent = bookInfo.title;
-  author.textContent = bookInfo.authors
-    ? `By ${bookInfo.authors.join(", ")}`
-    : "";
-  description.textContent = bookInfo.description || "No description available.";
-
-  // Update book cover image
-  if (bookInfo.imageLinks?.thumbnail) {
-    const imageUrl = bookInfo.imageLinks.thumbnail
-      .replace("http:", "https:")
-      .replace("zoom=1", "zoom=2");
-    bookCover.src = imageUrl;
-    bookCover.style.display = "block";
-  } else {
-    bookCover.style.display = "none";
-  }
-
-  // Create Amazon affiliate link
-  const amazonLink = createAmazonLink(bookInfo.title, bookInfo.authors?.[0]);
-  const buyButton = document.createElement("a");
-  buyButton.href = amazonLink;
-  buyButton.target = "_blank";
-  buyButton.rel = "noopener noreferrer sponsored";
-  buyButton.className = "buy-button amazon";
-  buyButton.innerHTML = "🛒 Buy on Amazon";
-
-  // Add book details
+  // Add additional info section
   additionalInfo.innerHTML = `
-      <p><strong>Published:</strong> ${bookInfo.publishedDate || "N/A"}</p>
-      <p><strong>Pages:</strong> ${bookInfo.pageCount || "N/A"}</p>
-      ${
-        bookInfo.averageRating
-          ? `<p><strong>Rating:</strong> ${bookInfo.averageRating}/5</p>`
-          : ""
-      }
+    <p><strong>Published:</strong> ${
+      book.details?.volumeInfo?.publishedDate || "Loading..."
+    }</p>
+    <p><strong>Pages:</strong> ${
+      book.details?.volumeInfo?.pageCount || "Loading..."
+    }</p>
+    <p><strong>Rating:</strong> ${
+      book.details?.volumeInfo?.averageRating || "?"
+    }/5</p>
+    <a href="https://www.amazon.com/s?k=${encodeURIComponent(
+      book.title + " " + book.author
+    )}&tag=${AFFILIATE_IDS.amazon}" 
+       class="amazon-button" 
+       target="_blank"
+       rel="noopener noreferrer">
+      🛒 Buy on Amazon
+    </a>
   `;
-  additionalInfo.appendChild(buyButton);
+
+  // If we have additional details from API, show those
+  if (book.details) {
+    description.textContent =
+      book.details.volumeInfo.description || "No description available.";
+  } else {
+    description.textContent = "Loading additional details...";
+    // Fetch details if not already available
+    searchBook(book.title, book.author).then((details) => {
+      book.details = details;
+      if (details?.volumeInfo) {
+        description.textContent =
+          details.volumeInfo.description || "No description available.";
+        // Update the additional info with fetched data
+        additionalInfo.innerHTML = `
+          <p><strong>Published:</strong> ${
+            details.volumeInfo.publishedDate || "N/A"
+          }</p>
+          <p><strong>Pages:</strong> ${
+            details.volumeInfo.pageCount || "N/A"
+          }</p>
+          <p><strong>Rating:</strong> ${formatRating(details.volumeInfo)}</p>
+          <a href="https://www.amazon.com/s?k=${encodeURIComponent(
+            book.title + " " + book.author
+          )}&tag=${AFFILIATE_IDS.amazon}" 
+             class="amazon-button" 
+             target="_blank"
+             rel="noopener noreferrer">
+            🛒 Buy on Amazon
+          </a>
+        `;
+      }
+    });
+  }
 
   modal.style.display = "block";
 }
@@ -247,3 +303,31 @@ async function initializeConfig() {
 
 // Call this when the script loads
 initializeConfig();
+
+// Add modal close functionality
+function initializeModal() {
+  const modal = document.getElementById("bookModal");
+  const closeBtn = document.querySelector(".close");
+
+  // Close on X button click
+  closeBtn.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  // Close on outside click
+  window.addEventListener("click", (event) => {
+    if (event.target === modal) {
+      modal.style.display = "none";
+    }
+  });
+}
+
+// Call this after DOM is loaded
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+    createBookshelf();
+    initializeModal();
+  },
+  { once: true }
+);
