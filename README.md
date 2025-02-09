@@ -1,4 +1,4 @@
-# Modern Bookshelf 📚
+# Modern Bookshelf
 
 A dynamic, interactive web application that displays entrepreneurship books in a visually appealing bookshelf layout. Built with vanilla JavaScript, HTML, and CSS, this project uses the Google Books API to fetch real-time book data and cover images.
 
@@ -71,10 +71,6 @@ A dynamic, interactive web application that displays entrepreneurship books in a
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Acknowledgments
 
