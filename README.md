@@ -2,6 +2,8 @@
 
 A dynamic, interactive web application that displays entrepreneurship books in a visually appealing bookshelf layout. Built with vanilla JavaScript, HTML, and CSS, this project uses the Google Books API to fetch real-time book data and cover images.
 
+Check out the bookshelf here: [Bookshelf](https://modernbookshelf.io)
+
 ## Features
 
 - 📖 Visual bookshelf display with realistic wood textures and lighting effects
